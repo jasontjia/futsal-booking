@@ -1,7 +1,7 @@
 <template>
-  <div class="min-h-screen flex flex-col bg-gray-50">
+  <div class="min-h-screen flex flex-col bg-gray-200">
     <!-- Navbar -->
-    <header class="bg-white shadow-sm">
+    <header class="bg-gray-200 shadow-sm">
       <div class="container mx-auto flex justify-between items-center py-4 px-6">
         <!-- Logo -->
         <h1 class="text-2xl font-bold text-green-600">Futsal Booking</h1>
@@ -75,8 +75,8 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white shadow-inner mt-auto">
-      <div class="container mx-auto text-center py-4 text-black text-md">
+    <footer class="bg-gray-200 shadow-inner mt-auto">
+      <div class="container mx-auto text-center py-3 text-black text-md">
         &copy; {{ new Date().getFullYear() }} JC Developer. All rights reserved.
         <div class="mt-2 space-x-3">
           <a href="#" class="hover:text-green-600 transition">Facebook</a>

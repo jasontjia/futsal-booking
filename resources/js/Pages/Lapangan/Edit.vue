@@ -1,7 +1,7 @@
 <template>
   <div class="bg-gradient-to-br from-blue-200 via-indigo-200 to-purple-200 min-h-screen">
     <!-- Navbar -->
-    <header class="bg-white shadow-sm mb-6 sticky top-0 z-50">
+    <header class="bg-gray-200 shadow-sm mb-6 sticky top-0 z-50">
       <div class="container mx-auto flex justify-between items-center py-4 px-6">
         <h1 class="text-2xl font-bold text-green-600">Futsal Booking</h1>
 
@@ -34,6 +34,7 @@
       <div v-if="menuOpen" class="md:hidden bg-white border-t shadow-sm">
         <nav class="flex flex-col space-y-2 p-4 text-gray-600 font-medium">
           <Link :href="route('admin.dashboard')" class="hover:text-green-600">Dashboard</Link>
+          <Link :href="route('lapangan.index')" class="hover:text-green-600 transition">Lapangan</Link>
           <span
             @click="showLogoutModal = true"
             class="cursor-pointer text-red-600 hover:underline transition mt-2"
@@ -122,7 +123,7 @@
         <div class="flex justify-end space-x-2">
           <button
             @click="showLogoutModal = false"
-            class="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 transition"
+            class="px-4 py-2 rounded-lg bg-gray-300 hover:bg-gray-400"
           >
             Batal
           </button>
@@ -135,6 +136,17 @@
         </div>
       </div>
     </div>
+    <!-- Footer -->
+    <footer class="bg-gray-200 shadow-inner py-3 mt-6">
+      <div class="container mx-auto text-center text-gray-700 text-md">
+        &copy; {{ new Date().getFullYear() }} JC Developer. All rights reserved.
+        <div class="mt-2 space-x-4">
+          <a href="#" class="hover:text-green-600 transition">Facebook</a>
+          <a href="#" class="hover:text-green-600 transition">Instagram</a>
+          <a href="#" class="hover:text-green-600 transition">Twitter</a>
+        </div>
+      </div>
+    </footer>
   </div>
 </template>
 

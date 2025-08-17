@@ -1,7 +1,7 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-blue-200 via-indigo-200 to-purple-200">
-  <!-- Navbar -->
-    <header class="bg-white shadow-sm sticky top-0 z-50 mb-6">
+  <div class="min-h-screen flex flex-col bg-gradient-to-br from-blue-200 via-indigo-200 to-purple-200">
+    <!-- Navbar -->
+    <header class="bg-gray-200 shadow-sm fixed top-0 w-full z-50">
       <div class="container mx-auto flex justify-between items-center py-4 px-6">
         <h1 class="text-2xl font-bold text-green-600">Futsal Booking</h1>
 
@@ -44,65 +44,112 @@
         </nav>
       </div>
     </header>
-    <div class="max-w-xl mx-auto bg-white shadow-lg rounded-lg">
-      <div style="max-width: 500px; margin: auto; padding: 2rem;">
-        <h1 style="font-size: 24px; font-weight: bold; margin-bottom: 1.5rem;">Buat Booking</h1>
+
+    <!-- Content -->
+    <main class="flex-grow container mx-auto px-6 pt-28 pb-10">
+      <div class="max-w-xl mx-auto bg-white shadow-lg rounded-lg p-8">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">Buat Booking</h1>
         
-        <form @submit.prevent="submit" style="display: flex; flex-direction: column; gap: 1rem;">
-          
+        <form @submit.prevent="submit" class="space-y-4">
+          <!-- Lapangan -->
           <div>
-            <label for="lapangan" style="display: block; font-weight: 600;">Lapangan</label>
-            <select id="lapangan" v-model="form.lapangan_id" style="width: 100%; padding: 0.5rem;">
+            <label for="lapangan" class="block font-semibold mb-1">Lapangan</label>
+            <select id="lapangan" v-model="form.lapangan_id" class="w-full border rounded-lg p-2">
               <option disabled value="">-- Pilih Lapangan --</option>
               <option v-for="lapangan in lapangans" :key="lapangan.id" :value="lapangan.id">
                 {{ lapangan.nama }}
               </option>
             </select>
-            <p v-if="form.errors.lapangan_id" style="color: red; font-size: 14px;">
+            <p v-if="form.errors.lapangan_id" class="text-red-600 text-sm mt-1">
               {{ form.errors.lapangan_id }}
             </p>
           </div>
 
+          <!-- Tanggal -->
           <div>
-            <label for="tanggal" style="display: block; font-weight: 600;">Tanggal</label>
-            <input id="tanggal" type="date" v-model="form.tanggal" style="width: 100%; padding: 0.5rem;" />
-            <p v-if="form.errors.tanggal" style="color: red; font-size: 14px;">
+            <label for="tanggal" class="block font-semibold mb-1">Tanggal</label>
+            <input id="tanggal" type="date" v-model="form.tanggal" class="w-full border rounded-lg p-2" />
+            <p v-if="form.errors.tanggal" class="text-red-600 text-sm mt-1">
               {{ form.errors.tanggal }}
             </p>
           </div>
 
+          <!-- Jam Mulai -->
           <div>
-            <label for="jam_mulai" style="display: block; font-weight: 600;">Jam Mulai</label>
-            <input id="jam_mulai" type="time" v-model="form.jam_mulai" style="width: 100%; padding: 0.5rem;" />
-            <p v-if="form.errors.jam_mulai" style="color: red; font-size: 14px;">
+            <label for="jam_mulai" class="block font-semibold mb-1">Jam Mulai</label>
+            <input id="jam_mulai" type="time" v-model="form.jam_mulai" class="w-full border rounded-lg p-2" />
+            <p v-if="form.errors.jam_mulai" class="text-red-600 text-sm mt-1">
               {{ form.errors.jam_mulai }}
             </p>
           </div>
 
+          <!-- Jam Selesai -->
           <div>
-            <label for="jam_selesai" style="display: block; font-weight: 600;">Jam Selesai</label>
-            <input id="jam_selesai" type="time" v-model="form.jam_selesai" style="width: 100%; padding: 0.5rem;" />
-            <p v-if="form.errors.jam_selesai" style="color: red; font-size: 14px;">
+            <label for="jam_selesai" class="block font-semibold mb-1">Jam Selesai</label>
+            <input id="jam_selesai" type="time" v-model="form.jam_selesai" class="w-full border rounded-lg p-2" />
+            <p v-if="form.errors.jam_selesai" class="text-red-600 text-sm mt-1">
               {{ form.errors.jam_selesai }}
             </p>
           </div>
 
-          <div style="display: flex; justify-content: space-between; margin-top: 1.5rem;">
-            <button type="submit" style="padding: 0.5rem 1rem; background-color: #4CAF50; color: white; border: none; border-radius: 4px;">
+          <!-- Buttons -->
+          <div class="flex justify-between mt-6">
+            <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
               Konfirmasi
             </button>
-            <Link href="/booking" style="padding: 0.5rem 1rem; background-color: #ccc; color: black; text-decoration: none; border-radius: 4px;">
+            <Link href="/booking" class="px-4 py-2 bg-gray-300 text-black rounded-lg hover:bg-gray-400 transition">
               Batal
             </Link>
           </div>
         </form>
       </div>
+    </main>
+
+    <!-- Logout Modal (sama kaya index.vue style) -->
+    <div
+      v-if="showLogoutModal"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-xl shadow-lg p-6 w-96">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">Konfirmasi Logout</h2>
+        <p class="text-gray-600 mb-6">Apakah Anda yakin ingin keluar?</p>
+        <div class="flex justify-end space-x-3">
+          <button
+            @click="showLogoutModal = false"
+            class="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 transition"
+          >
+            Batal
+          </button>
+          <form method="POST" :action="route('logout')">
+            <button
+              type="submit"
+              class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+            >
+              Logout
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
-</div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-200 shadow-inner py-3">
+      <div class="container mx-auto text-center text-black text-md">
+        &copy; {{ new Date().getFullYear() }} JC Developer. All rights reserved.
+        <div class="mt-2 space-x-4">
+          <a href="#" class="hover:text-green-600 transition">Facebook</a>
+          <a href="#" class="hover:text-green-600 transition">Instagram</a>
+          <a href="#" class="hover:text-green-600 transition">Twitter</a>
+        </div>
+      </div>
+    </footer>
+  </div>
 </template>
 
 <script setup>
 import { useForm, Link } from '@inertiajs/vue3'
+import { ref } from 'vue'
+
 const props = defineProps({ lapangans: Array })
 
 const form = useForm({
@@ -115,4 +162,7 @@ const form = useForm({
 function submit() {
   form.post('/booking')
 }
+
+const showLogoutModal = ref(false)
+const menuOpen = ref(false)
 </script>

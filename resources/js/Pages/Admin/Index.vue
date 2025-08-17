@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-blue-200 via-indigo-200 to-purple-200">
+  <div class="min-h-screen flex flex-col bg-gradient-to-br from-blue-200 via-indigo-200 to-purple-200">
     <!-- Navbar -->
     <header class="bg-white shadow-sm mb-6 sticky top-0 z-50">
       <div class="container mx-auto flex justify-between items-center py-4 px-6">
@@ -44,83 +44,98 @@
       </div>
     </header>
 
-    <!-- Table Card -->
-    <div class="overflow-x-auto shadow-lg rounded-lg bg-white border border-gray-200 mx-6">
-      <!-- Table Header with Title -->
-      <div class="flex justify-between items-center bg-gray-100 px-6 py-4 rounded-t-lg border-b border-gray-200">
-        <h2 class="text-2xl font-bold text-gray-800">Data Booking Masuk</h2>
-      </div>
+    <!-- Content -->
+    <main class="flex-1">
+      <!-- Table Card -->
+      <div class="overflow-x-auto shadow-lg rounded-lg bg-white border border-gray-200 mx-6">
+        <!-- Table Header with Title -->
+        <div class="flex justify-between items-center bg-gray-100 px-6 py-4 rounded-t-lg border-b border-gray-200">
+          <h2 class="text-2xl font-bold text-gray-800">Data Booking Masuk</h2>
+        </div>
 
-      <!-- Table -->
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">User</th>
-            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Lapangan</th>
-            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Tanggal</th>
-            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Jam</th>
-            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Bukti</th>
-            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
-            <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700">Aksi</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-100">
-          <tr
-            v-for="booking in bookings"
-            :key="booking.id"
-            class="hover:bg-gray-50 transition"
-          >
-            <td class="px-4 py-2 text-gray-800">{{ booking.user.name }}</td>
-            <td class="px-4 py-2 text-gray-800">{{ booking.lapangan.nama }}</td>
-            <td class="px-4 py-2 text-gray-800">{{ booking.tanggal }}</td>
-            <td class="px-4 py-2 text-gray-800">{{ booking.jam_mulai }} - {{ booking.jam_selesai }}</td>
-            <td class="px-4 py-2">
-              <template v-if="booking.bukti_pembayaran">
-                <a
-                  :href="`/storage/${booking.bukti_pembayaran}`"
-                  target="_blank"
-                  class="text-blue-600 hover:underline font-medium"
+        <!-- Table -->
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">User</th>
+              <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Lapangan</th>
+              <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Tanggal</th>
+              <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Jam</th>
+              <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Bukti</th>
+              <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
+              <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700">Aksi</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <tr
+              v-for="booking in bookings"
+              :key="booking.id"
+              class="hover:bg-gray-50 transition"
+            >
+              <td class="px-4 py-2 text-gray-800">{{ booking.user.name }}</td>
+              <td class="px-4 py-2 text-gray-800">{{ booking.lapangan.nama }}</td>
+              <td class="px-4 py-2 text-gray-800">{{ booking.tanggal }}</td>
+              <td class="px-4 py-2 text-gray-800">{{ booking.jam_mulai }} - {{ booking.jam_selesai }}</td>
+              <td class="px-4 py-2">
+                <template v-if="booking.bukti_pembayaran">
+                  <a
+                    :href="`/storage/${booking.bukti_pembayaran}`"
+                    target="_blank"
+                    class="text-blue-600 hover:underline font-medium"
+                  >
+                    Lihat Bukti
+                  </a>
+                </template>
+                <span v-else class="text-gray-400">-</span>
+              </td>
+              <td class="px-4 py-2">
+                <span
+                  :class="{
+                    'bg-yellow-100 text-yellow-800': booking.status === 'menunggu_verifikasi',
+                    'bg-green-100 text-green-800': booking.status === 'diterima',
+                    'bg-red-100 text-red-800': booking.status === 'ditolak',
+                  }"
+                  class="px-2 py-1 rounded-full text-xs font-semibold"
                 >
-                  Lihat Bukti
-                </a>
-              </template>
-              <span v-else class="text-gray-400">-</span>
-            </td>
-            <td class="px-4 py-2">
-              <span
-                :class="{
-                  'bg-yellow-100 text-yellow-800': booking.status === 'menunggu_verifikasi',
-                  'bg-green-100 text-green-800': booking.status === 'diterima',
-                  'bg-red-100 text-red-800': booking.status === 'ditolak',
-                }"
-                class="px-2 py-1 rounded-full text-xs font-semibold"
-              >
-                {{ booking.status.replace('_', ' ') }}
-              </span>
-            </td>
-            <td class="px-4 py-2 flex justify-center space-x-2">
-              <template v-if="booking.status === 'menunggu_verifikasi'">
-                <button
-                  @click="verifikasi(booking.id, 'diterima')"
-                  :disabled="loading"
-                  class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-sm shadow-sm transition"
-                >
-                  Terima
-                </button>
-                <button
-                  @click="verifikasi(booking.id, 'ditolak')"
-                  :disabled="loading"
-                  class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm shadow-sm transition"
-                >
-                  Tolak
-                </button>
-              </template>
-              <span v-else class="text-gray-400">-</span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+                  {{ booking.status.replace('_', ' ') }}
+                </span>
+              </td>
+              <td class="px-4 py-2 flex justify-center space-x-2">
+                <template v-if="booking.status === 'menunggu_verifikasi'">
+                  <button
+                    @click="verifikasi(booking.id, 'diterima')"
+                    :disabled="loading"
+                    class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-sm shadow-sm transition"
+                  >
+                    Terima
+                  </button>
+                  <button
+                    @click="verifikasi(booking.id, 'ditolak')"
+                    :disabled="loading"
+                    class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm shadow-sm transition"
+                  >
+                    Tolak
+                  </button>
+                </template>
+                <span v-else class="text-gray-400">-</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-200 shadow-inner py-3">
+      <div class="container mx-auto text-center text-black before:text-md">
+        &copy; {{ new Date().getFullYear() }} JC Developer. All rights reserved.
+        <div class="mt-2 space-x-4">
+          <a href="#" class="hover:text-green-600 transition">Facebook</a>
+          <a href="#" class="hover:text-green-600 transition">Instagram</a>
+          <a href="#" class="hover:text-green-600 transition">Twitter</a>
+        </div>
+      </div>
+    </footer>
 
     <!-- Logout Confirmation Modal -->
     <div
@@ -133,7 +148,7 @@
         <div class="flex justify-end space-x-2">
           <button
             @click="showLogoutModal = false"
-            class="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 transition"
+            class="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 transition"
           >
             Batal
           </button>

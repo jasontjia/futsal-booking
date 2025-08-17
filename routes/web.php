@@ -50,6 +50,10 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::put('/lapangan/{lapangan}', [LapanganController::class, 'update'])->name('lapangan.update');
     Route::delete('/lapangan/{lapangan}', [LapanganController::class, 'destroy'])->name('lapangan.destroy');
 
+    // Verifikasi Booking
+    Route::post('/bookings/{booking}/verifikasi', [BookingController::class, 'verifikasi'])
+        ->name('admin.bookings.verifikasi');
+
 
 });
 
