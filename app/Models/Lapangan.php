@@ -14,6 +14,7 @@ class Lapangan extends Model
         'harga_per_jam',
         'jam_buka',
         'jam_tutup',
+        'foto'
     ];
 
     public function bookings()

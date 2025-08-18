@@ -5,13 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Booking;
 use App\Models\Lapangan;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
 
 class BookingController extends Controller
 {
     // ================= USER =================
-
     public function index()
     {
         $bookings = Booking::with('lapangan')
@@ -20,10 +20,23 @@ class BookingController extends Controller
             ->get();
 
         return Inertia::render('Booking/Index', [
-            'bookings' => $bookings,
-            'csrf_token' => csrf_token(),
+            'bookings' => $bookings
         ]);
     }
+
+    public function verifikasi(Request $request, Booking $booking)
+    {
+        $request->validate([
+            'status' => 'required|in:diterima,ditolak',
+        ]);
+
+        $booking->status = $request->status;
+        $booking->save();
+
+        return redirect()->route('admin.dashboard')
+            ->with('success', 'Status booking berhasil diperbarui.');
+    }
+
 
     public function create()
     {
@@ -42,23 +55,6 @@ class BookingController extends Controller
             'jam_selesai' => 'required|after:jam_mulai',
         ]);
 
-        // Cek tabrakan booking
-        $isBooked = Booking::where('lapangan_id', $request->lapangan_id)
-            ->where('tanggal', $request->tanggal)
-            ->where(function($q) use ($request) {
-                $q->whereBetween('jam_mulai', [$request->jam_mulai, $request->jam_selesai])
-                  ->orWhereBetween('jam_selesai', [$request->jam_mulai, $request->jam_selesai])
-                  ->orWhere(function($q2) use ($request) {
-                      $q2->where('jam_mulai', '<=', $request->jam_mulai)
-                         ->where('jam_selesai', '>=', $request->jam_selesai);
-                  });
-            })
-            ->exists();
-
-        if ($isBooked) {
-            return back()->withErrors(['jam_mulai' => 'Waktu sudah dipesan'])->withInput();
-        }
-
         Booking::create([
             'user_id' => Auth::id(),
             'lapangan_id' => $request->lapangan_id,
@@ -71,36 +67,62 @@ class BookingController extends Controller
         return redirect()->route('booking.index')->with('success', 'Booking berhasil dibuat');
     }
 
-    public function uploadBukti(Request $request, Booking $booking)
+    public function edit(Booking $booking)
     {
-        $request->validate([
-            'bukti_pembayaran' => 'required|image|mimes:jpeg,png,jpg|max:2048'
+        $lapangans = Lapangan::all();
+        return Inertia::render('Booking/Edit', [
+            'booking' => $booking->load('lapangan'),
+            'lapangans' => $lapangans
         ]);
-
-        $path = $request->file('bukti_pembayaran')->store('bukti', 'public');
-
-        $booking->update([
-            'bukti_pembayaran' => $path,
-            'status' => 'menunggu_verifikasi'
-        ]);
-
-        return redirect()->route('booking.index')->with('success', 'Bukti pembayaran diupload');
     }
 
-    // ================= ADMIN =================
-
-    public function verifikasi(Request $request, Booking $booking)
+    public function update(Request $request, Booking $booking)
     {
         $request->validate([
-            'status' => 'required|in:diterima,ditolak'
+            'lapangan_id' => 'required|exists:lapangans,id',
+            'tanggal' => 'required|date',
+            'jam_mulai' => 'required',
+            'jam_selesai' => 'required',
+            'bukti_pembayaran' => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
-        $booking->update(['status' => $request->status]);
+        $booking->lapangan_id = $request->lapangan_id;
+        $booking->tanggal = $request->tanggal;
+        $booking->jam_mulai = $request->jam_mulai;
+        $booking->jam_selesai = $request->jam_selesai;
 
-        return redirect()->back()->with('success', 'Booking diverifikasi');
+        // Handle upload bukti pembayaran ke disk 'public'
+        if ($request->hasFile('bukti_pembayaran')) {
+            if ($booking->bukti_pembayaran && Storage::disk('public')->exists($booking->bukti_pembayaran)) {
+                Storage::disk('public')->delete($booking->bukti_pembayaran);
+            }
+            $booking->bukti_pembayaran = $request->file('bukti_pembayaran')->store('bukti', 'public');
+            $booking->status = 'menunggu_verifikasi';
+        }
+
+        $booking->save();
+
+        return redirect()->route('booking.index')->with('success', 'Booking berhasil diupdate');
     }
 
-    public function adminDashboard()
+    public function destroy(Booking $booking)
+    {
+        // Pastikan user hanya bisa menghapus booking miliknya sendiri
+        if ($booking->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized');
+        }
+
+        // Hapus file bukti pembayaran dari storage jika ada
+        if ($booking->bukti_pembayaran && Storage::disk('public')->exists($booking->bukti_pembayaran)) {
+            Storage::disk('public')->delete($booking->bukti_pembayaran);
+        }
+
+        // Hapus booking dari database
+        $booking->delete();
+
+        return redirect()->route('booking.index')->with('success', 'Booking berhasil dihapus');
+    }
+     public function adminDashboard()
     {
         // Cek user admin
         if (auth()->user()->role !== 'admin') {
@@ -115,4 +137,24 @@ class BookingController extends Controller
             'bookings' => $bookings
         ]);
     }
+
+    public function uploadBukti(Request $request, Booking $booking)
+{
+    $request->validate([
+        'bukti_pembayaran' => 'required|image|mimes:jpg,jpeg,png|max:2048'
+    ]);
+
+    // Hapus file lama jika ada
+    if ($booking->bukti_pembayaran && Storage::disk('public')->exists($booking->bukti_pembayaran)) {
+        Storage::disk('public')->delete($booking->bukti_pembayaran);
+    }
+
+    // Simpan file baru
+    $booking->bukti_pembayaran = $request->file('bukti_pembayaran')->store('bukti', 'public');
+    $booking->status = 'menunggu_verifikasi';
+    $booking->save();
+
+    return redirect()->route('booking.index')->with('success', 'Bukti pembayaran berhasil diunggah');
+}
+
 }

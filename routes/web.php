@@ -26,7 +26,15 @@ Route::middleware(['auth'])->group(function () {
     // Booking (user)
     Route::get('/booking', [BookingController::class, 'index'])->name('booking.index');
     Route::resource('booking', BookingController::class)->only(['create', 'store']);
+    Route::get('/booking/{booking}/edit', [BookingController::class, 'edit'])->name('booking.edit');
+    Route::put('/booking/{booking}', [BookingController::class, 'update'])->name('booking.update');
     Route::post('/booking/{booking}/upload-bukti', [BookingController::class, 'uploadBukti'])->name('booking.uploadBukti');
+    Route::delete('/booking/{booking}', [BookingController::class, 'destroy'])->name('booking.destroy');
+    Route::post('/admin/bookings/{booking}/verifikasi', [BookingController::class, 'verifikasi'])
+    ->name('admin.bookings.verifikasi')
+    ->middleware('auth');
+
+
 
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

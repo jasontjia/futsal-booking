@@ -19,6 +19,20 @@
             :key="lap.id"
             class="bg-white shadow-lg rounded-2xl p-6 border border-gray-100 hover:shadow-xl hover:-translate-y-1 transform transition duration-300"
           >
+            <!-- Tambahan Gambar -->
+            <img
+              v-if="lap.foto"
+              :src="`/storage/${lap.foto}`"
+              :alt="lap.nama"
+              class="w-full h-48 object-cover rounded-lg mb-4"
+            />
+            <img
+              v-else
+              src="/storage/images/no-image.png"
+              alt="Lapangan"
+              class="w-full h-48 object-cover rounded-lg mb-4"
+            />
+
             <h3 class="text-xl font-bold text-gray-800 mb-3">
               {{ lap.nama }}
             </h3>
@@ -39,13 +53,6 @@
 
         <!-- CTA -->
         <div class="text-center space-y-4">
-          <Link
-            href="/jadwal"
-            class="bg-indigo-600 text-white px-8 py-3 rounded-full text-lg font-medium shadow-md hover:bg-indigo-700 transition"
-          >
-            Cek Semua Jadwal
-          </Link>
-
           <!-- CTA Register -->
           <p class="text-gray-700">
             Belum punya akun?  

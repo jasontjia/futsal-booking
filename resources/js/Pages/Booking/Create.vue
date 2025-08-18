@@ -9,19 +9,13 @@
         <nav class="hidden md:flex space-x-4 items-center font-medium text-black">
           <Link :href="route('booking.index')" class="hover:text-green-600 transition">Riwayat</Link>
           <Link :href="route('booking.create')" class="hover:text-green-600 transition">Booking</Link>
-          <span 
-            class="cursor-pointer text-red-600 hover:underline transition"
-            @click="showLogoutModal = true"
-          >
+          <span class="cursor-pointer text-red-600 hover:underline transition" @click="showLogoutModal = true">
             Logout
           </span>
         </nav>
 
         <!-- Mobile Menu Button -->
-        <button
-          @click="menuOpen = !menuOpen"
-          class="md:hidden text-gray-600 hover:text-gray-800 focus:outline-none"
-        >
+        <button @click="menuOpen = !menuOpen" class="md:hidden text-gray-600 hover:text-gray-800 focus:outline-none">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
                viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -35,10 +29,7 @@
         <nav class="flex flex-col space-y-2 p-4 text-gray-600 font-medium">
           <Link :href="route('booking.index')" class="hover:text-green-600">Riwayat</Link>
           <Link :href="route('booking.create')" class="hover:text-green-600">Booking</Link>
-          <span 
-            class="cursor-pointer text-red-600 hover:underline mt-2"
-            @click="showLogoutModal = true"
-          >
+          <span class="cursor-pointer text-red-600 hover:underline mt-2" @click="showLogoutModal = true">
             Logout
           </span>
         </nav>
@@ -51,45 +42,54 @@
         <h1 class="text-2xl font-bold text-gray-800 mb-6">Buat Booking</h1>
         
         <form @submit.prevent="submit" class="space-y-4">
-          <!-- Lapangan -->
+          <!-- Lapangan Custom Dropdown -->
           <div>
-            <label for="lapangan" class="block font-semibold mb-1">Lapangan</label>
-            <select id="lapangan" v-model="form.lapangan_id" class="w-full border rounded-lg p-2">
-              <option disabled value="">-- Pilih Lapangan --</option>
-              <option v-for="lapangan in lapangans" :key="lapangan.id" :value="lapangan.id">
-                {{ lapangan.nama }}
-              </option>
-            </select>
-            <p v-if="form.errors.lapangan_id" class="text-red-600 text-sm mt-1">
-              {{ form.errors.lapangan_id }}
-            </p>
+            <label class="block font-semibold mb-1">Lapangan</label>
+            <div 
+              class="border rounded p-2 flex items-center justify-between cursor-pointer"
+              @click="dropdownOpen = !dropdownOpen"
+            >
+              <div class="flex items-center space-x-2">
+                <img v-if="selected?.foto" :src="`/storage/${selected.foto}`" class="w-12 h-8 object-cover rounded" />
+                <span>{{ selected?.nama || '-- Pilih Lapangan --' }}</span>
+              </div>
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+            <div v-if="dropdownOpen" class="border rounded mt-1 bg-white max-h-60 overflow-auto shadow-lg">
+              <div 
+                v-for="lapangan in lapangans" 
+                :key="lapangan.id"
+                @click="selectLapangan(lapangan)"
+                class="flex items-center space-x-2 p-2 hover:bg-gray-100 cursor-pointer"
+              >
+                <img v-if="lapangan.foto" :src="`/storage/${lapangan.foto}`" class="w-12 h-8 object-cover rounded" />
+                <span>{{ lapangan.nama }}</span>
+              </div>
+            </div>
+            <p v-if="form.errors.lapangan_id" class="text-red-600 text-sm mt-1">{{ form.errors.lapangan_id }}</p>
           </div>
 
           <!-- Tanggal -->
           <div>
             <label for="tanggal" class="block font-semibold mb-1">Tanggal</label>
             <input id="tanggal" type="date" v-model="form.tanggal" class="w-full border rounded-lg p-2" />
-            <p v-if="form.errors.tanggal" class="text-red-600 text-sm mt-1">
-              {{ form.errors.tanggal }}
-            </p>
+            <p v-if="form.errors.tanggal" class="text-red-600 text-sm mt-1">{{ form.errors.tanggal }}</p>
           </div>
 
           <!-- Jam Mulai -->
           <div>
             <label for="jam_mulai" class="block font-semibold mb-1">Jam Mulai</label>
             <input id="jam_mulai" type="time" v-model="form.jam_mulai" class="w-full border rounded-lg p-2" />
-            <p v-if="form.errors.jam_mulai" class="text-red-600 text-sm mt-1">
-              {{ form.errors.jam_mulai }}
-            </p>
+            <p v-if="form.errors.jam_mulai" class="text-red-600 text-sm mt-1">{{ form.errors.jam_mulai }}</p>
           </div>
 
           <!-- Jam Selesai -->
           <div>
             <label for="jam_selesai" class="block font-semibold mb-1">Jam Selesai</label>
             <input id="jam_selesai" type="time" v-model="form.jam_selesai" class="w-full border rounded-lg p-2" />
-            <p v-if="form.errors.jam_selesai" class="text-red-600 text-sm mt-1">
-              {{ form.errors.jam_selesai }}
-            </p>
+            <p v-if="form.errors.jam_selesai" class="text-red-600 text-sm mt-1">{{ form.errors.jam_selesai }}</p>
           </div>
 
           <!-- Buttons -->
@@ -105,26 +105,17 @@
       </div>
     </main>
 
-    <!-- Logout Modal (sama kaya index.vue style) -->
-    <div
-      v-if="showLogoutModal"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-    >
+    <!-- Logout Modal -->
+    <div v-if="showLogoutModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white rounded-xl shadow-lg p-6 w-96">
         <h2 class="text-xl font-bold text-gray-800 mb-4">Konfirmasi Logout</h2>
         <p class="text-gray-600 mb-6">Apakah Anda yakin ingin keluar?</p>
         <div class="flex justify-end space-x-3">
-          <button
-            @click="showLogoutModal = false"
-            class="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 transition"
-          >
+          <button @click="showLogoutModal = false" class="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 transition">
             Batal
           </button>
           <form method="POST" :action="route('logout')">
-            <button
-              type="submit"
-              class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
-            >
+            <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
               Logout
             </button>
           </form>
@@ -133,7 +124,7 @@
     </div>
 
     <!-- Footer -->
-    <footer class="bg-gray-200 shadow-inner py-3">
+    <footer class="bg-gray-200 shadow-inner py-3 mt-auto">
       <div class="container mx-auto text-center text-black text-md">
         &copy; {{ new Date().getFullYear() }} JC Developer. All rights reserved.
         <div class="mt-2 space-x-4">
@@ -147,8 +138,8 @@
 </template>
 
 <script setup>
-import { useForm, Link } from '@inertiajs/vue3'
 import { ref } from 'vue'
+import { useForm, Link } from '@inertiajs/vue3'
 
 const props = defineProps({ lapangans: Array })
 
@@ -159,10 +150,18 @@ const form = useForm({
   jam_selesai: '',
 })
 
+const dropdownOpen = ref(false)
+const selected = ref(null)
+const showLogoutModal = ref(false)
+const menuOpen = ref(false)
+
+function selectLapangan(lapangan) {
+  form.lapangan_id = lapangan.id
+  selected.value = lapangan
+  dropdownOpen.value = false
+}
+
 function submit() {
   form.post('/booking')
 }
-
-const showLogoutModal = ref(false)
-const menuOpen = ref(false)
 </script>

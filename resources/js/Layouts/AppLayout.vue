@@ -48,12 +48,7 @@
           <Link v-if="isAdmin" href="/admin.index" class="hover:text-green-600">Admin</Link>
 
           <template v-if="!isLoggedIn">
-            <Link
-              href="/login"
-              class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow transition mt-2"
-            >
-              Login
-            </Link>
+            <Link href="/login" class="ml text-black hover:text-green-600">Login</Link>
           </template>
 
           <Link
