@@ -7,7 +7,7 @@
         <nav class="hidden md:flex space-x-6 items-center font-medium text-gray-700">
           <Link :href="route('booking.index')" class="hover:text-green-600 transition">Riwayat</Link>
           <Link :href="route('booking.create')" class="hover:text-green-600 transition">Booking</Link>
-          <span class="cursor-pointer text-red-600 hover:text-red-700 transition" @click="showLogoutModal=true">Logout</span>
+          <span @click="showLogoutModal = true" class="cursor-pointer text-red-600 hover:underline transition">Logout</span>
         </nav>
         <button @click="menuOpen=!menuOpen" class="md:hidden text-gray-600 hover:text-gray-800 focus:outline-none">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -19,7 +19,7 @@
         <nav class="flex flex-col space-y-3 p-4 text-gray-700 font-medium">
           <Link :href="route('booking.index')" class="hover:text-green-600">Riwayat</Link>
           <Link :href="route('booking.create')" class="hover:text-green-600">Booking</Link>
-          <span class="cursor-pointer text-red-600 hover:text-red-700 mt-2" @click="showLogoutModal=true">Logout</span>
+          <span class="cursor-pointer text-red-600 hover:text-red-700 hover:underline transition mt-2" @click="showLogoutModal=true">Logout</span>
         </nav>
       </div>
     </header>
@@ -29,7 +29,7 @@
       <div class="bg-white shadow-xl rounded-xl p-6">
         <h1 class="text-2xl font-bold text-gray-800 mb-4">Riwayat Booking Saya</h1>
 
-        <!-- Filters & Total -->
+        <!-- Filters, Total, Entries -->
         <div class="mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <div class="flex-1 flex flex-col md:flex-row md:gap-2 gap-2">
             <input v-model="globalSearch" type="text" placeholder="Cari semua kolom..."
@@ -45,7 +45,20 @@
             <input type="date" v-model="filterTanggal"
                    class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 transition"/>
           </div>
-          <div class="text-gray-700 font-medium">Total Booking: <span class="font-bold">{{ filteredBookings.length }}</span></div>
+          <div class="flex items-center gap-4">
+            <div class="text-gray-700 font-medium">Total Booking: <span class="font-bold">{{ filteredBookings.length }}</span></div>
+            <div class="relative">
+              <label class="text-gray-700 font-medium mr-2">Entries:</label>
+              <select v-model.number="perPage"
+                      class="px-2 py-1 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 appearance-none pr-6">
+                <option :value="5">5</option>
+                <option :value="10">10</option>
+                <option :value="20">20</option>
+                <option :value="50">50</option>
+              </select>
+              <span class="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500"></span>
+            </div>
+          </div>
         </div>
 
         <!-- Table -->
@@ -76,7 +89,13 @@
                   </span>
                 </td>
                 <td class="px-6 py-4">
-                  <div v-if="booking.status==='menunggu_pembayaran' && !booking.bukti_pembayaran">
+                  <div v-if="booking.bukti_pembayaran">
+                    <button @click="openBuktiModal(booking.bukti_pembayaran)"
+                            class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-sm">
+                      Lihat Bukti
+                    </button>
+                  </div>
+                  <div v-else-if="booking.status==='menunggu_pembayaran'">
                     <form @submit.prevent="uploadBukti(booking)" class="flex flex-col gap-2">
                       <input type="file" @change="onFileChange($event, booking)" required class="block text-sm text-gray-700"/>
                       <button v-if="files[booking.id]" type="submit"
@@ -85,18 +104,14 @@
                       </button>
                     </form>
                   </div>
-                  <div v-else-if="booking.bukti_pembayaran">
-                    <a :href="`/storage/${booking.bukti_pembayaran}`" target="_blank">
-                      <img :src="`/storage/${booking.bukti_pembayaran}`" alt="Bukti Pembayaran"
-                           class="w-24 h-auto rounded-lg shadow border hover:scale-105 transition"/>
-                    </a>
-                  </div>
                   <div v-else class="text-gray-500 italic">Belum tersedia</div>
                 </td>
                 <td class="px-6 py-4 text-center space-x-2">
-                  <button @click="editBooking(booking)" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm">Ubah</button>
-                  <button @click="confirmDelete(booking)" class="bg-red-500 text-white px-3 py-1 rounded hover:text-red-600 text-sm">Hapus</button>
-
+                  <button v-if="booking.status!=='diterima'" @click="editBooking(booking)"
+                          class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm">Ubah</button>
+                  <button v-if="booking.status!=='diterima'" @click="confirmDelete(booking)"
+                          class="bg-red-500 text-white px-3 py-1 rounded hover:text-red-600 text-sm">Hapus</button>
+                  <span v-if="booking.status==='diterima'" class="text-gray-400 italic text-xs">Tidak bisa dihapus</span>
                 </td>
               </tr>
               <tr v-if="filteredBookings.length===0">
@@ -121,51 +136,48 @@
       </div>
     </main>
 
-    <!-- Modals -->
-    <div v-if="showLapanganModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <!-- Modal Bukti Pembayaran -->
+    <div v-if="showBuktiModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white rounded-xl shadow-xl p-6 w-96">
-        <h2 class="text-xl font-semibold mb-4">{{ selectedLapangan.nama }}</h2>
-        <div v-if="selectedLapangan.foto">
-          <img :src="`/storage/${selectedLapangan.foto}`" alt="Foto Lapangan" class="w-full h-64 object-cover rounded-lg"/>
-        </div>
-        <div v-else class="text-gray-500 italic">Tidak ada gambar tersedia</div>
+        <h2 class="text-xl font-semibold mb-4">Bukti Pembayaran</h2>
+        <img :src="`/storage/${buktiImage}`" alt="Bukti Pembayaran" class="w-full h-64 object-cover rounded-lg"/>
         <div class="flex justify-end mt-4">
-          <button @click="showLapanganModal=false" class="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400">Tutup</button>
+          <button @click="showBuktiModal=false" class="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400">Tutup</button>
         </div>
       </div>
     </div>
 
-    <div v-if="showLogoutModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-      <div class="bg-white rounded-xl shadow-xl p-6 w-80">
+    <!-- Modal Logout -->
+    <div v-if="showLogoutModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-xl shadow-xl p-6 w-80 text-center">
         <h2 class="text-lg font-semibold mb-4">Konfirmasi Logout</h2>
-        <p class="mb-6 text-gray-600">Apakah Anda yakin ingin logout?</p>
-        <div class="flex justify-end space-x-2">
-          <button @click="showLogoutModal=false" class="px-4 py-2 rounded-lg bg-gray-300 hover:bg-gray-400">Batal</button>
-          <button @click="logout" class="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600">Logout</button>
+        <p class="mb-4">Apakah anda yakin ingin logout?</p>
+        <div class="flex justify-center gap-4">
+          <button @click="showLogoutModal=false" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Batal</button>
+          <button @click="logout" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Logout</button>
         </div>
       </div>
     </div>
 
+    <!-- Modal Hapus Booking -->
     <div v-if="showDeleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-xl shadow-xl p-6 w-80">
+      <div class="bg-white rounded-xl shadow-xl p-6 w-80 text-center">
         <h2 class="text-lg font-semibold mb-4">Konfirmasi Hapus</h2>
-        <p class="mb-6 text-gray-600">Apakah Anda yakin ingin menghapus booking lapangan <strong>{{ bookingToDelete?.lapangan?.nama }}</strong> tanggal <strong>{{ bookingToDelete?.tanggal }}</strong>?</p>
-        <div class="flex justify-end space-x-2">
-          <button @click="showDeleteModal=false" class="px-4 py-2 rounded-lg bg-gray-300 hover:bg-gray-400">Batal</button>
-          <button @click="performDelete" class="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600">Hapus</button>
+        <p class="mb-4">Apakah anda yakin ingin menghapus booking ini?</p>
+        <div class="flex justify-center gap-4">
+          <button @click="showDeleteModal=false" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Batal</button>
+          <button @click="performDelete" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Hapus</button>
         </div>
       </div>
     </div>
-
 
     <!-- Footer -->
     <footer class="bg-gray-200 shadow-inner py-3 mt-6">
       <div class="container mx-auto text-center text-gray-700 text-md">
         &copy; {{ new Date().getFullYear() }} JC Developer. All rights reserved.
         <div class="mt-2 space-x-4">
-          <a href="#" class="hover:text-green-600 transition">Facebook</a>
-          <a href="#" class="hover:text-green-600 transition">Instagram</a>
-          <a href="#" class="hover:text-green-600 transition">Twitter</a>
+         <a href="https://www.instagram.com/jasonn_christopher?igsh=OXAzenJwa3g5azcx" target="_blank"class="hover:text-green-600 transition">Instagram</a>
+         <a href="https://mail.google.com/mail/?view=cm&to=christopher.ciayadi2511@gmail.com" target="_blank" class="hover:text-green-600 transition">Gmail</a>
         </div>
       </div>
     </footer>
@@ -184,6 +196,8 @@ const showLogoutModal = ref(false)
 const menuOpen = ref(false)
 const showLapanganModal = ref(false)
 const selectedLapangan = ref({})
+const showBuktiModal = ref(false)
+const buktiImage = ref('')
 const globalSearch = ref('')
 const filterStatus = ref('')
 const filterTanggal = ref('')
@@ -194,50 +208,43 @@ const perPage = ref(5)
 const showDeleteModal = ref(false)
 const bookingToDelete = ref(null)
 
-function confirmDelete(booking) {
-  bookingToDelete.value = booking
-  showDeleteModal.value = true
-}
-
-function performDelete() {
-  if (!bookingToDelete.value) return
-  router.delete(`/booking/${bookingToDelete.value.id}`, {
-    onSuccess: () => {
-      showDeleteModal.value = false
-      bookingToDelete.value = null
-    }
+// Actions
+function confirmDelete(booking){ bookingToDelete.value = booking; showDeleteModal.value=true }
+function performDelete(){ 
+  if(!bookingToDelete.value) return
+  router.delete(`/booking/${bookingToDelete.value.id}`, { 
+    onSuccess: ()=> { showDeleteModal.value=false; bookingToDelete.value=null } 
   })
 }
-
-
 function onFileChange(e, booking){ files.value[booking.id]=e.target.files[0] }
 function uploadBukti(booking){
   if(!files.value[booking.id]) return
-  form.bukti_pembayaran=files.value[booking.id]
+  form.bukti_pembayaran = files.value[booking.id]
   form.post(`/booking/${booking.id}/upload-bukti`,{
     onSuccess:()=> {
-      booking.bukti_pembayaran=files.value[booking.id].name
+      booking.bukti_pembayaran = files.value[booking.id].name
       booking.status='menunggu_verifikasi'
       files.value[booking.id]=null
       form.bukti_pembayaran=null
-    },
-    preserveScroll:true
+    }, preserveScroll:true
   })
 }
-
 function logout(){ router.post('/logout',{ onSuccess:()=> router.visit('/login') }) }
 function openLapanganModal(lapangan){ selectedLapangan.value=lapangan; showLapanganModal.value=true }
 function sortBy(column){ sortColumn.value===column? sortDir.value=sortDir.value==='asc'?'desc':'asc':(sortColumn.value=column,sortDir.value='asc') }
+function editBooking(booking){ router.visit(`/booking/${booking.id}/edit`) }
+function openBuktiModal(image){ buktiImage.value=image; showBuktiModal.value=true }
 
+// Computed
 const filteredBookings = computed(()=>{
   let data = props.bookings.filter(b=>{
-    const term=globalSearch.value.toLowerCase()
-    let matchSearch=b.lapangan.nama.toLowerCase().includes(term)||
-                    b.tanggal.toLowerCase().includes(term)||
-                    (b.jam_mulai+'-'+b.jam_selesai).toLowerCase().includes(term)||
-                    b.status.toLowerCase().includes(term)
-    let matchStatus = filterStatus.value? b.status===filterStatus.value : true
-    let matchTanggal = filterTanggal.value? b.tanggal===filterTanggal.value : true
+    const term = globalSearch.value.toLowerCase()
+    let matchSearch = b.lapangan.nama.toLowerCase().includes(term) ||
+                      b.tanggal.toLowerCase().includes(term) ||
+                      (b.jam_mulai+'-'+b.jam_selesai).toLowerCase().includes(term) ||
+                      b.status.toLowerCase().includes(term)
+    let matchStatus = filterStatus.value ? b.status===filterStatus.value : true
+    let matchTanggal = filterTanggal.value ? b.tanggal===filterTanggal.value : true
     return matchSearch && matchStatus && matchTanggal
   })
   if(sortColumn.value){
@@ -259,7 +266,7 @@ const paginatedBookings = computed(()=>{
   const start=(currentPage.value-1)*perPage.value
   return filteredBookings.value.slice(start,start+perPage.value)
 })
-watch([globalSearch, filterStatus, filterTanggal],()=>{ currentPage.value=1 })
+watch([globalSearch, filterStatus, filterTanggal, perPage],()=>{ currentPage.value=1 })
 
 function statusClass(status){
   return {
@@ -268,16 +275,6 @@ function statusClass(status){
     'bg-red-100 text-red-800':status==='ditolak'
   }
 }
-
-// Aksi kolom
-function editBooking(booking){ router.visit(`/booking/${booking.id}/edit`) }
-
-function deleteBooking(id) {
-  if (confirm('Apakah kamu yakin ingin menghapus booking ini?')) {
-    router.delete(`/booking/${id}`)
-  }
-}
-
 </script>
 
 <style>

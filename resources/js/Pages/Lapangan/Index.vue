@@ -39,11 +39,28 @@
             </Link>
           </div>
         </div>
+        
+        <!-- Total Data + Entries -->
+        <div class="flex justify-between items-center px-6 py-2 text-gray-700 font-medium">
 
         <!-- Total Lapangan -->
-        <div class="text-gray-700 font-medium">Total Lapangan: <span class="font-bold">{{ filteredLapangan.length }}</span></div>
-        <br />
-
+        <div class="pr-10">Total Lapangan: <span class="font-bold">{{ filteredLapangan.length }}</span></div>
+  
+        <!--Entries -->
+        <div class="flex justify-between items-center mt-4 mb-2 px-2 md:px-0 text-gray-700 font-medium">
+          <div class="flex items-center">
+            <label class="text-gray-700 font-medium mr-2">Entries:</label>
+            <select v-model.number="perPage"
+                    class="px-2 py-1 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 appearance-none pr-6">
+              <option :value="5">5</option>
+              <option :value="10">10</option>
+              <option :value="20">20</option>
+              <option :value="50">50</option>
+            </select>
+            <span class="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500"></span>
+          </div>
+        </div>
+        </div>
         <!-- Tabel -->
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse">
@@ -138,9 +155,8 @@
       <div class="container mx-auto text-center text-black before:text-md">
         &copy; {{ new Date().getFullYear() }} JC Developer. All rights reserved.
         <div class="mt-2 space-x-4">
-          <a href="#" class="hover:text-green-600 transition">Facebook</a>
-          <a href="#" class="hover:text-green-600 transition">Instagram</a>
-          <a href="#" class="hover:text-green-600 transition">Twitter</a>
+          <a href="https://www.instagram.com/jasonn_christopher?igsh=OXAzenJwa3g5azcx" target="_blank"class="hover:text-green-600 transition">Instagram</a>
+          <a href="https://mail.google.com/mail/?view=cm&to=christopher.ciayadi2511@gmail.com" target="_blank" class="hover:text-green-600 transition">Gmail</a>
         </div>
       </div>
     </footer>

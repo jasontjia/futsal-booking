@@ -74,9 +74,8 @@
       <div class="container mx-auto text-center py-3 text-black text-md">
         &copy; {{ new Date().getFullYear() }} JC Developer. All rights reserved.
         <div class="mt-2 space-x-3">
-          <a href="#" class="hover:text-green-600 transition">Facebook</a>
-          <a href="#" class="hover:text-green-600 transition">Instagram</a>
-          <a href="#" class="hover:text-green-600 transition">Twitter</a>
+          <a href="https://www.instagram.com/jasonn_christopher?igsh=OXAzenJwa3g5azcx" target="_blank"class="hover:text-green-600 transition">Instagram</a>
+          <a href="https://mail.google.com/mail/?view=cm&to=christopher.ciayadi2511@gmail.com" target="_blank" class="hover:text-green-600 transition">Gmail</a>
         </div>
       </div>
     </footer>

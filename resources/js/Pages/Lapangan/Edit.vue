@@ -122,6 +122,10 @@
     <footer class="bg-gray-200 shadow-inner py-3 mt-6">
       <div class="container mx-auto text-center text-gray-700 text-md">
         &copy; {{ new Date().getFullYear() }} JC Developer. All rights reserved.
+        <div class="mt-2 space-x-4">
+          <a href="https://www.instagram.com/jasonn_christopher?igsh=OXAzenJwa3g5azcx" target="_blank"class="hover:text-green-600 transition">Instagram</a>
+          <a href="https://mail.google.com/mail/?view=cm&to=christopher.ciayadi2511@gmail.com" target="_blank" class="hover:text-green-600 transition">Gmail</a>
+        </div>
       </div>
     </footer>
   </div>

@@ -45,11 +45,26 @@
           </div>
         </div>
 
-        <!-- Total Data -->
-        <div class="px-6 py-2 text-gray-700 font-medium">
-          Total Booking: <span class="font-bold">{{ filteredBookings.length }}</span>
-        </div>
+        <!-- Total Data + Entries -->
+        <div class="flex justify-between items-center px-6 py-2 text-gray-700 font-medium">
+          <!-- Total Booking Masuk -->
+          <div>
+            Total Booking Masuk: <span class="font-bold">{{ filteredBookings.length }}</span>
+          </div>
 
+          <!-- Entries -->
+          <div class="flex items-center">
+            <label class="text-gray-700 font-medium mr-2">Entries:</label>
+            <select v-model.number="perPage"
+                    class="px-2 py-1 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 appearance-none pr-6">
+              <option :value="5">5</option>
+              <option :value="10">10</option>
+              <option :value="20">20</option>
+              <option :value="50">50</option>
+            </select>
+            <span class="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500"></span>
+          </div>
+        </div>
         <!-- Table -->
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
@@ -126,6 +141,10 @@
     <footer class="bg-gray-200 shadow-inner py-3 mt-6">
       <div class="container mx-auto text-center text-black text-md">
         &copy; {{ new Date().getFullYear() }} JC Developer. All rights reserved.
+        <div class="mt-2 space-x-4">
+          <a href="https://www.instagram.com/jasonn_christopher?igsh=OXAzenJwa3g5azcx" target="_blank"class="hover:text-green-600 transition">Instagram</a>
+          <a href="https://mail.google.com/mail/?view=cm&to=christopher.ciayadi2511@gmail.com" target="_blank" class="hover:text-green-600 transition">Gmail</a>
+        </div>
       </div>
     </footer>
 
@@ -168,6 +187,8 @@ const dateFrom = ref('')
 const dateTo = ref('')
 const sortColumn = ref('')
 const sortDir = ref('asc')
+const currentPage = ref(1)
+const perPage = ref(5)
 
 // Sort function
 function sortBy(column){
@@ -206,17 +227,17 @@ const filteredBookings = computed(()=>{
   return data
 })
 
-// Pagination
-const currentPage = ref(1)
-const perPage = ref(5)
+// Paginated bookings
 const totalPages = computed(()=> Math.ceil(filteredBookings.value.length/perPage.value))
 const paginatedBookings = computed(()=>{
   const start = (currentPage.value-1)*perPage.value
   return filteredBookings.value.slice(start,start+perPage.value)
 })
-watch([globalSearch,dateFrom,dateTo],()=> currentPage.value=1)
 
-// Modal functions
+// Watch search/filter
+watch([globalSearch,dateFrom,dateTo,perPage],()=> currentPage.value=1)
+
+// Modal
 function openBuktiModal(booking){
   selectedBooking.value = booking
   showBuktiModal.value = true
