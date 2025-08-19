@@ -99,10 +99,3 @@ const submit = () => {
         </form>
     </GuestLayout>
 </template>
-<script setup>
-import { onMounted } from 'vue'
-
-onMounted(() => {
-  document.title = "Reset Password"
-})
-</script>

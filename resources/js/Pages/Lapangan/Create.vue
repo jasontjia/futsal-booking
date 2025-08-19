@@ -119,11 +119,6 @@
 <script setup>
 import { ref } from 'vue'
 import { useForm, Link } from '@inertiajs/vue3'
-import { onMounted } from 'vue'
-
-onMounted(() => {
-  document.title = "Tambah Lapangan - Admin"
-})
 
 const menuOpen = ref(false)
 const showLogoutModal = ref(false)

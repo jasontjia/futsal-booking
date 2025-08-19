@@ -187,11 +187,6 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { Link, router, useForm } from '@inertiajs/vue3'
-import { onMounted } from 'vue'
-
-onMounted(() => {
-  document.title = "Riwayat Booking"
-})
 
 const props = defineProps({ bookings: Array })
 

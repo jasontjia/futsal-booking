@@ -85,11 +85,6 @@
 <script setup>
 import { ref } from 'vue'
 import { useForm, Link, router } from '@inertiajs/vue3'
-import { onMounted } from 'vue'
-
-onMounted(() => {
-  document.title = "Edit Booking"
-})
 
 const props = defineProps({ booking: Object, lapangans: Array })
 const selectedLapangan = ref(props.lapangans.find(l => l.id === props.booking.lapangan.id) || {})

@@ -59,11 +59,3 @@ const verificationLinkSent = computed(
         </form>
     </GuestLayout>
 </template>
-
-<script setup>
-import { onMounted } from 'vue'
-
-onMounted(() => {
-  document.title = "Verifikasi Email"
-})
-</script>

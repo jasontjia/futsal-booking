@@ -134,11 +134,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useForm, router, Link } from '@inertiajs/vue3'
-import { onMounted } from 'vue'
 
-onMounted(() => {
-  document.title = "Edit Lapangan - Admin"
-})
 // Props
 const props = defineProps({ lapangan: Object })
 

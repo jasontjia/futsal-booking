@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\LapanganController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\PublicController;
+use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -64,8 +65,6 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
 
 
 });
-
-
 
 /*
 |--------------------------------------------------------------------------

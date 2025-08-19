@@ -69,7 +69,8 @@
               <th @click="sortBy('user')" class="px-4 py-3 text-left text-sm font-semibold text-gray-700 cursor-pointer">
                 User <span v-if="sortColumn==='user'">{{ sortDir==='asc'?'↑':'↓' }}</span>
               </th>
-              <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Lapangan</th>
+              <th @click="sortBy('lapangan')" class="px-4 py-3 text-left text-sm font-semibold text-gray-700 cursor-pointer">
+                Lapangan <span v-if="sortColumn==='lapangan'">{{ sortDir==='asc'?'↑':'↓' }}</span></th>
               <th @click="sortBy('tanggal')" class="px-4 py-3 text-left text-sm font-semibold text-gray-700 cursor-pointer">
                 Tanggal <span v-if="sortColumn==='tanggal'">{{ sortDir==='asc'?'↑':'↓' }}</span>
               </th>
@@ -143,9 +144,13 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-gray-200 shadow-inner py-3 mt-6">
-      <div class="container mx-auto text-center text-black text-md">
+    <footer class="bg-gray-200 shadow-inner mt-auto">
+      <div class="container mx-auto text-center py-3 text-black text-md">
         &copy; {{ new Date().getFullYear() }} JC Developer. All rights reserved.
+        <div class="mt-2 space-x-3">
+          <a href="https://www.instagram.com/jasonn_christopher?igsh=OXAzenJwa3g5azcx" target="_blank"class="hover:text-green-600 transition">Instagram</a>
+          <a href="https://mail.google.com/mail/?view=cm&to=christopher.ciayadi2511@gmail.com" target="_blank" class="hover:text-green-600 transition">Gmail</a>
+        </div>
       </div>
     </footer>
 
@@ -183,9 +188,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { router, Link } from '@inertiajs/vue3'
-import { onMounted } from 'vue'
 
-onMounted(() => { document.title = "Dashboard - Admin" })
 const props = defineProps({ bookings: Array })
 
 const loading = ref(false)
