@@ -74,6 +74,11 @@
 
 <script setup>
 import { useForm, Link } from '@inertiajs/vue3'
+import { onMounted } from 'vue'
+
+onMounted(() => {
+  document.title = "Register"
+})
 
 const form = useForm({
   name: '',

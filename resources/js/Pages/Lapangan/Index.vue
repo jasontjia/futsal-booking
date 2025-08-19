@@ -166,7 +166,11 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { router, Link } from '@inertiajs/vue3'
+import { onMounted } from 'vue'
 
+onMounted(() => {
+  document.title = "Daftar Lapangan - Adnmin"
+})
 const props = defineProps({ lapangans: Array })
 
 // Navbar & modals

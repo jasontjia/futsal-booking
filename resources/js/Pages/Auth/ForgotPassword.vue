@@ -71,3 +71,10 @@ const submit = () => {
     </div>
   </div>
 </template>
+<script setup>
+import { onMounted } from 'vue'
+
+onMounted(() => {
+  document.title = "Forgot Pasword"
+})
+</script>

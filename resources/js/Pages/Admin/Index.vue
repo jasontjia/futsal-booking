@@ -173,7 +173,11 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { router, Link } from '@inertiajs/vue3'
+import { onMounted } from 'vue'
 
+onMounted(() => {
+  document.title = "Dashboard - Admin"
+})
 const props = defineProps({ bookings: Array })
 
 const loading = ref(false)
