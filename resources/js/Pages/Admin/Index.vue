@@ -47,12 +47,9 @@
 
         <!-- Total Data + Entries -->
         <div class="flex justify-between items-center px-6 py-2 text-gray-700 font-medium">
-          <!-- Total Booking Masuk -->
           <div>
             Total Booking Masuk: <span class="font-bold">{{ filteredBookings.length }}</span>
           </div>
-
-          <!-- Entries -->
           <div class="flex items-center">
             <label class="text-gray-700 font-medium mr-2">Entries:</label>
             <select v-model.number="perPage"
@@ -62,9 +59,9 @@
               <option :value="20">20</option>
               <option :value="50">50</option>
             </select>
-            <span class="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500"></span>
           </div>
         </div>
+
         <!-- Table -->
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
@@ -72,9 +69,7 @@
               <th @click="sortBy('user')" class="px-4 py-3 text-left text-sm font-semibold text-gray-700 cursor-pointer">
                 User <span v-if="sortColumn==='user'">{{ sortDir==='asc'?'↑':'↓' }}</span>
               </th>
-              <th @click="sortBy('lapangan')" class="px-4 py-3 text-left text-sm font-semibold text-gray-700 cursor-pointer">
-                Lapangan <span v-if="sortColumn==='lapangan'">{{ sortDir==='asc'?'↑':'↓' }}</span>
-              </th>
+              <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Lapangan</th>
               <th @click="sortBy('tanggal')" class="px-4 py-3 text-left text-sm font-semibold text-gray-700 cursor-pointer">
                 Tanggal <span v-if="sortColumn==='tanggal'">{{ sortDir==='asc'?'↑':'↓' }}</span>
               </th>
@@ -87,15 +82,23 @@
           <tbody class="divide-y divide-gray-100">
             <tr v-for="booking in paginatedBookings" :key="booking.id" class="hover:bg-gray-50 transition">
               <td class="px-4 py-2 text-gray-800">{{ booking.user.name }}</td>
-              <td class="px-4 py-2 text-gray-800">{{ booking.lapangan.nama }}</td>
+
+              <!-- Lapangan clickable -->
+              <td class="px-4 py-2 text-blue-600 cursor-pointer hover:underline"
+                  @click="openLapanganModal(booking.lapangan)">
+                {{ booking.lapangan.nama }}
+              </td>
+
               <td class="px-4 py-2 text-gray-800">{{ booking.tanggal }}</td>
               <td class="px-4 py-2 text-gray-800">{{ booking.jam_mulai }} - {{ booking.jam_selesai }}</td>
+
               <td class="px-4 py-2">
                 <template v-if="booking.bukti_pembayaran">
                   <button @click="openBuktiModal(booking)" class="text-blue-600 hover:underline font-medium">Lihat Bukti</button>
                 </template>
                 <span v-else class="text-gray-400">-</span>
               </td>
+
               <td class="px-4 py-2">
                 <span
                   :class="{
@@ -108,6 +111,7 @@
                   {{ booking.status.replace('_',' ') }}
                 </span>
               </td>
+
               <td class="px-4 py-2 flex justify-center space-x-2">
                 <template v-if="booking.status==='menunggu_verifikasi'">
                   <button @click="verifikasi(booking.id,'diterima')" :disabled="loading" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-sm shadow-sm transition">Terima</button>
@@ -116,6 +120,7 @@
                 <span v-else class="text-gray-400">-</span>
               </td>
             </tr>
+
             <tr v-if="filteredBookings.length===0">
               <td colspan="7" class="text-center py-4 text-gray-500">Data tidak ditemukan</td>
             </tr>
@@ -141,10 +146,6 @@
     <footer class="bg-gray-200 shadow-inner py-3 mt-6">
       <div class="container mx-auto text-center text-black text-md">
         &copy; {{ new Date().getFullYear() }} JC Developer. All rights reserved.
-        <div class="mt-2 space-x-4">
-          <a href="https://www.instagram.com/jasonn_christopher?igsh=OXAzenJwa3g5azcx" target="_blank"class="hover:text-green-600 transition">Instagram</a>
-          <a href="https://mail.google.com/mail/?view=cm&to=christopher.ciayadi2511@gmail.com" target="_blank" class="hover:text-green-600 transition">Gmail</a>
-        </div>
       </div>
     </footer>
 
@@ -167,6 +168,15 @@
         <img :src="`/storage/${selectedBooking.bukti_pembayaran}`" alt="Bukti Pembayaran" class="w-full h-auto rounded"/>
       </div>
     </div>
+
+    <!-- Lapangan Modal -->
+    <div v-if="showLapanganModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div class="bg-white rounded-lg shadow-lg p-4 max-w-md w-full relative">
+        <button @click="showLapanganModal=false" class="absolute top-2 right-2 text-gray-600 hover:text-gray-800">&times;</button>
+        <h3 class="text-lg font-bold mb-4">{{ selectedLapangan.nama }}</h3>
+        <img :src="`/storage/${selectedLapangan.foto}`" alt="Foto Lapangan" class="w-full h-auto rounded"/>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -175,16 +185,16 @@ import { ref, computed, watch } from 'vue'
 import { router, Link } from '@inertiajs/vue3'
 import { onMounted } from 'vue'
 
-onMounted(() => {
-  document.title = "Dashboard - Admin"
-})
+onMounted(() => { document.title = "Dashboard - Admin" })
 const props = defineProps({ bookings: Array })
 
 const loading = ref(false)
 const menuOpen = ref(false)
 const showLogoutModal = ref(false)
 const showBuktiModal = ref(false)
+const showLapanganModal = ref(false)
 const selectedBooking = ref(null)
+const selectedLapangan = ref({})
 
 const globalSearch = ref('')
 const dateFrom = ref('')
@@ -194,13 +204,11 @@ const sortDir = ref('asc')
 const currentPage = ref(1)
 const perPage = ref(5)
 
-// Sort function
 function sortBy(column){
   if(sortColumn.value===column) sortDir.value = sortDir.value==='asc'?'desc':'asc'
   else { sortColumn.value = column; sortDir.value='asc' }
 }
 
-// Filtered + sorted
 const filteredBookings = computed(()=>{
   let data = props.bookings.filter(b=>{
     const term = globalSearch.value.toLowerCase()
@@ -231,35 +239,31 @@ const filteredBookings = computed(()=>{
   return data
 })
 
-// Paginated bookings
 const totalPages = computed(()=> Math.ceil(filteredBookings.value.length/perPage.value))
 const paginatedBookings = computed(()=>{
   const start = (currentPage.value-1)*perPage.value
   return filteredBookings.value.slice(start,start+perPage.value)
 })
 
-// Watch search/filter
 watch([globalSearch,dateFrom,dateTo,perPage],()=> currentPage.value=1)
 
-// Modal
 function openBuktiModal(booking){
   selectedBooking.value = booking
   showBuktiModal.value = true
 }
 
-// Booking verification
-async function verifikasi(id,status){
-  loading.value=true
-  try{
-    await router.post(`/admin/bookings/${id}/verifikasi`,{status})
-  }catch(err){
-    console.error(err)
-  }finally{
-    loading.value=false
-  }
+function openLapanganModal(lapangan){
+  selectedLapangan.value = lapangan
+  showLapanganModal.value = true
 }
 
-// Logout
+async function verifikasi(id,status){
+  loading.value=true
+  try{ await router.post(`/admin/bookings/${id}/verifikasi`,{status}) }
+  catch(err){ console.error(err) }
+  finally{ loading.value=false }
+}
+
 function logout(){
   showLogoutModal.value=false
   router.post('/logout')
